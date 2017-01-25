@@ -20,8 +20,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/jrallison/go-workers"
 	"github.com/benmanns/goworker"
+	"github.com/jrallison/go-workers"
 )
 
 // BaseWorker interface that all other worker interfaces must implement.
@@ -40,14 +40,13 @@ type GoWorkersWrapper interface {
 
 // Concrete implementation of GoWorkersWrapper
 type GoWorkersJob struct {
-	concurrency     int
-	configuration   map[string]string
-	class 		string
-	queue           string
+	concurrency int
+	class       string
+	queue       string
 }
 
 func (worker GoWorkersJob) Configuration() map[string]string {
-	return worker.configuration
+	return map[string]string{"server": "localhost:6379", "process": "1"}
 }
 
 func (worker GoWorkersJob) Perform(message *workers.Msg) {
@@ -66,16 +65,15 @@ func (worker GoWorkersJob) Queue() string {
 func (worker GoWorkersJob) Concurrency() int {
 	return worker.concurrency
 }
+
 // End concrete implementation of GoWorkersWrapper
 
-
- //Go worker wrapper for "github.com/benmanns/goworker"
+//Go worker wrapper for "github.com/benmanns/goworker"
 type GoWorkerWrapper interface {
 	BaseWorker
 	Perform(queue string, args ...interface{}) error
 	Configuration() goworker.WorkerSettings
 }
-
 
 // Concrete implementation of GoWorkerWrapper
 type GoWorkerJob struct {
@@ -109,8 +107,8 @@ func (worker GoWorkerJob) Configuration() goworker.WorkerSettings {
 		Interval:       5.0,
 	}
 }
-// End concrete implementation of GoWorkerWrapper
 
+// End concrete implementation of GoWorkerWrapper
 
 // PerformAsync is abstract and will perform a job on our wrapped workers.
 func PerformAsync(worker BaseWorker, args ...interface{}) {
@@ -154,7 +152,7 @@ func RunGoWorker() {
 }
 
 func main() {
-	myWorker := GoWorkersJob{queue: "default", class: "SomeClass", concurrency: 2, configuration: map[string]string{"server":  "localhost:6379", "process": "1"}}
+	myWorker := GoWorkersJob{queue: "default", class: "SomeClass", concurrency: 2}
 	Configure(myWorker)
 	Process(myWorker)
 	PerformAsync(myWorker, "argument1", "argument2")
